@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>User Profile</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style>
+        .btn_spacing {
+            float: right;
+            margin-top: 15px;
+        }
+        .name{
+            font-weight: lighter;
+        }
+        .post {
+            margin-bottom: 100px;
+        }
+        
+        
+    </style>
+</head>
+
+    <body>
+        <div class="jumbotron text-center">
+            <div class="row">
+                <div class="col-sm-4">
+                    <h3>Coding Dojo Wall</h3>
+                </div>
+                <div class="col-sm-4">
+                    <h3 class="name">Name: {{name}}</h3>
+                </div>
+                <div class="col-sm-4">
+                    <a href="/sign_out" class="btn btn-default btn_spacing">Sign Out</a>
+                </div>
+            </div>
+            <div class="alert alert-success fade in">
+                <a href="#" class="close" data-dismiss="alert">&times;</a>
+                <strong>Success!</strong> Welcome!.
+            </div>
+        </div>
+        <div class="container">  
+            <div class="post">
+                <h3>Post a message:</h3>
+                <form action='/message' method='post'>
+                    <textarea class="form-control" type="text" rows="5" name="message" id="message"></textarea>
+                    <button type="submit" class="btn btn-primary btn_spacing">post a message</button>
+                </form>
+            </div>
+            <div class="container jumbotron">
+                {% for content in session['message'] %}
+            
+                <div class="container">
+                    <h5>Post: {{content['id']}} {{content['name']}} - {{content['date']}} </h5>
+                    <p>{{content['message']}}</p>
+                    {% for comment in session['comments'] %}
+                        {% if comment['id'] != 'None' %}
+                        {}
+                            <div class="container">
+                                <h5>Comment: {{comment['name']}} - {{comment['date']}} </h5>
+                                <p>{{comment['comment']}}</p>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    <div class"comment">
+                        <form action='/comment' method='post'>
+                            <input type="hidden" name="message_id" value="{{ content['messages_id'] }}">
+                            <textarea style=" height: 75px; " class="form-control comment_in" type="text" rows="5" name="comment" id="comment"></textarea>
+                            <button type="submit" class="btn btn-success btn_spacing">post a comment</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </body>
+
+</html>
