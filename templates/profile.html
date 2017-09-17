@@ -10,7 +10,6 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <style>
         .btn_spacing {
-            float: right;
             margin-top: 15px;
         }
         .name{
@@ -18,12 +17,9 @@
         }
         .post {
             margin-bottom: 100px;
-        }
-        
-        
+        }        
     </style>
 </head>
-
     <body>
         <div class="jumbotron text-center">
             <div class="row">
@@ -51,22 +47,20 @@
                 </form>
             </div>
             <div class="container jumbotron">
-                {% for content in session['message'] %}
-            
+                {% for content in message %}            
                 <div class="container">
                     <h5>Post: {{content['id']}} {{content['name']}} - {{content['date']}} </h5>
                     <p>{{content['message']}}</p>
-                    {% for comment in session['comments'] %}
-                        {% if comment['id'] != 'None' %}
-                        {}
+                    {% for comment in comments %}
+                        {% if content['id'] == comment['messages_id'] %}
                             <div class="container">
-                                <h5>Comment: {{comment['name']}} - {{comment['date']}} </h5>
+                                <h5>Comment: {{comment['name']}} - {{comment['date']}}</h5>
                                 <p>{{comment['comment']}}</p>
                             </div>
                         {% endif %}
                     {% endfor %}
                     <div class"comment">
-                        <form action='/comment' method='post'>
+                        <form action='/comment/{{content['id']}}' method='post'>
                             <input type="hidden" name="message_id" value="{{ content['messages_id'] }}">
                             <textarea style=" height: 75px; " class="form-control comment_in" type="text" rows="5" name="comment" id="comment"></textarea>
                             <button type="submit" class="btn btn-success btn_spacing">post a comment</button>
@@ -75,8 +69,6 @@
                 </div>
                 {% endfor %}
             </div>
-
         </div>
     </body>
-
 </html>

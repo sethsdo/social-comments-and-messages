@@ -23,7 +23,7 @@ def index():
 @app.route('/process', methods=['POST'])
 def register():
     for key in request.form.keys():
-        print request.form[key]
+        #print request.form[key]
         if len(request.form[key]) < 2:
             flash("All fields are required")
             break
@@ -55,11 +55,10 @@ def register():
                 'salt': salt
             }
             session['user'] = mysql.query_db(query, data)
-            print "hello"
+            #print "hello"
             return redirect('/profile')
         return redirect('/profile')
     return redirect('/')
-
 
 @app.route('/signIn', methods=['POST'])
 def sign_in():
@@ -80,19 +79,21 @@ def sign_in():
 
 @app.route('/profile')
 def show_user():
+    #print session['user']
     if 'user' not in session:
     	return redirect('/')
     user_query = "SELECT CONCAT(first_name, ' ', last_name) as name, email FROM user WHERE id = :id"
     query_data = {'id': session['user']}
     user = mysql.query_db(user_query, query_data)
-    print user
-    message_query = "select messages.users_id as id, concat(user.first_name, ' ', user.last_name) as name, message, DATE_FORMAT(messages.created_at, ' %b ' ' %D ' ' %Y') as date from user JOIN messages ON messages.users_id = user.id"
-    session['message'] = mysql.query_db(message_query)
+    #print user
+    message_query = "SELECT concat(user.first_name, ' ', user.last_name) as name, messages.message, messages.id, DATE_FORMAT(messages.created_at, ' %b ' ' %D ' ' %Y') as date FROM messages JOIN user ON messages.users_id=user.id"
+    messages = mysql.query_db(message_query)
+    #print message
 
-    comments_query = "select comments.messages_id as id, concat(user.first_name, ' ', user.last_name) as name, comment, DATE_FORMAT(comments.created_at, ' %b ' ' %D ' ' %Y') as date from messages LEFT JOIN user ON user.id = messages.users_id LEFT JOIN comments ON comments.messages_id = messages.id"
-    session['comments'] = mysql.query_db(comments_query)
-    return render_template('/profile.html', name=user[0]['name'])
-
+    comments_query = "SELECT comments.users_id, comments.comment, comments.messages_id, concat(user.first_name, ' ', user.last_name) as name, DATE_FORMAT(comments.created_at, ' %b ' ' %D ' ' %Y') as date FROM comments INNER JOIN user ON user.id=comments.users_id INNER JOIN messages ON messages.id = comments.messages_id"
+    comments = mysql.query_db(comments_query)
+    #print comments
+    return render_template('profile.html', message=messages, comments=comments, name=user[0]['name'])
 
 @app.route('/message', methods=['POST'])
 def post():
@@ -102,22 +103,21 @@ def post():
         'users_id': session['user']
     }
     mysql.query_db(query, data)
-    print request.form['message']
+    #print request.form['message']
     return redirect("/profile")
 
-
-@app.route('/comment', methods=['POST'])
-def post_comment():
-    query = "INSERT INTO comments (comment, created_at, updated_at, users_id, messages_id) VALUES (:comment, NOW(), NOW(), :users_id, messages_id)"
+@app.route('/comment/<id>', methods=['POST'])
+def post_comment(id):
+    query = "INSERT INTO comments (comment, created_at, updated_at, users_id, messages_id) VALUES (:comment, NOW(), NOW(), :users_id, :messages_id)"
     data = {
         'comment': request.form['comment'],
         'users_id': session['user'],
-        'messages_id': request.form['message_id'],
+        'messages_id': id
     }
+    #print data
     mysql.query_db(query, data)
-    print request.form['comment']
+    #print request.form['comment']
     return redirect("/profile")
-
 
 @app.route('/sign_out')
 def back():
